@@ -8,23 +8,33 @@
     # - 4
 
 import csv
-
 file_path = input("Enter the path to the CSV file: ")
-records = []
 
-#main function 0
+#function 0
+def main (): # No typehints since it doesn't take any input or give any output beside running the function
+    """Run this python script which looks at records and gets the average grade"""
+    records = add_records(file_path)
+    average = get_average(records)
+    return
 
-#turn to function 1
-with open(file_path, 'r') as file:
-    csv_reader = csv.DictReader(file)
-    for row in csv_reader:
-        records.append(row)
+#function 1
+def add_records (pathtocsv) -> list:
+    """Reads records from CSV and returns them as a list"""
+    records = []
+    with open(pathtocsv, 'r') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            records.append(row)
+    return records
 
-#turn to function 2
-total = sum(float(record['Grade']) for record in records)
-average = total / len(records)
+#function 2
+def get_average(records: list) -> float:
+    """Calculates the total of the grades and from there returns the average"""
+    total = sum(float(record['Grade']) for record in records)
+    average = total / len(records)
+    return average
 
-#turn to function 3
+#someone turn this into a function 3
 print(f"Average Grade: {average}")
 print("--------------------")
 
@@ -33,8 +43,12 @@ filtered_records = [record for record in records if float(record['Grade']) >= 80
 print("Student Report")
 print("--------------")
 
-#turn to function 4
+#someone turn this into a function 4
 for record in filtered_records:
     print(f"Name: {record['Name']}")
     print(f"Grade: {record['Grade']}")
     print("--------------------")
+
+# needed for main
+if __name__ == "__main__":
+    main()
