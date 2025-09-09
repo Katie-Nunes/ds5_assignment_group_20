@@ -4,7 +4,7 @@
     # - 0 (Katie)
     # - 1 (Katie)
     # - 2 (Katie)
-    # - 3
+    # - 3 (Aaron)
     # - 4
 
 import csv
@@ -15,6 +15,7 @@ def main (): # No typehints since it doesn't take any input or give any output b
     """Run this python script which looks at records and gets the average grade"""
     records = add_records(file_path)
     average = get_average(records)
+    print_report(records, average)
     return
 
 #function 1
@@ -34,14 +35,16 @@ def get_average(records: list) -> float:
     average = total / len(records)
     return average
 
-#someone turn this into a function 3
-print(f"Average Grade: {average}")
-print("--------------------")
+#function 3
+def print_report(records: list, average: float) -> None:
+    print(f"Average Grade: {average}")
+    print("--------------------")
 
-filtered_records = [record for record in records if float(record['Grade']) >= 80.0]
+    #filter out students with a grade >= 80
+    filtered_records = [record for record in records if float(record['Grade']) >= 80.0]
 
-print("Student Report")
-print("--------------")
+    print("Student Report")
+    print("--------------")
 
 #someone turn this into a function 4
 for record in filtered_records:
