@@ -46,11 +46,21 @@ def print_report(records: list, average: float) -> None:
     print("Student Report")
     print("--------------")
 
-#someone turn this into a function 4
-for record in filtered_records:
-    print(f"Name: {record['Name']}")
-    print(f"Grade: {record['Grade']}")
-    print("--------------------")
+
+
+#function 4
+def print_student_details(records: list) -> None:
+    """Prints details of students with grade >= 80"""
+    # Filter out students with a grade >= 80
+    filtered_records = [record for record in records if float(record['Grade']) >= 80.0]
+    
+    print("Student Report (High Achievers)")
+    print("-------------------------------")
+    
+    for record in filtered_records:
+        print(f"Name: {record['Name']}")
+        print(f"Grade: {record['Grade']}")
+        print("--------------------")
 
 # needed for main
 if __name__ == "__main__":
