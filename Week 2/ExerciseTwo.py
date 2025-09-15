@@ -19,8 +19,8 @@ def map_pixel_to_complex(i: int,j: int, width: int, x_range: tuple(float,float) 
     
 	x_min,x_max = x_range
 	y_min,y_max = y_range
-	x = x_min + (j / width) * (x_max - x_min)
-	y = y_min + (i / width) * (y_max - y_min)
+	x = x_min + (j / (width-1)) * (x_max - x_min)
+	y = y_min + (i / (width-1)) * (y_max - y_min)
 	return complex(x,y)
 
 def mandelbrot_iteration(c: complex, max_iter: int = 100) -> int:
