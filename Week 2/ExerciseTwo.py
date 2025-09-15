@@ -22,3 +22,21 @@ def map_pixel_to_complex(i: int,j: int, width: int, x_range: tuple(float,float) 
 	x = x_min + (j / width) * (x_max - x_min)
 	y = y_min + (i / width) * (y_max - y_min)
 	return complex(x,y)
+
+def mandelbrot_iteration(c: complex, max_iter: int = 100) -> int:
+    """
+    Calculate how many iterations until the sequence diverges.
+    
+    Args:
+        c: Complex number to test
+        max_iter: Maximum iterations (100)
+    
+    Returns:
+        int: 0 if it never diverges, otherwise the iteration number where it diverged
+    """
+    z = 0 + 0j  # Start at zero
+    for n in range(1, max_iter + 1):
+        z = z * z + c
+        if abs(z) > 2:  # (Divergence condition)
+            return n
+    return 0  # (if it never diverges)
