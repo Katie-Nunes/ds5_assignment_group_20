@@ -13,7 +13,7 @@
 		# Create Plot in right size
 		# Populate plot with pixels depending on div_index
 
-
+import numpy as np
 def map_pixel_to_complex(i: int,j: int, width: int, x_range: tuple(float,float) = (-1.5,0.5),y_range: tuple(float,float) = (-1,1)) -> complex:
     ## Maps a pixel coordinate (i,j) to a point in the complex plane
     
@@ -40,3 +40,6 @@ def mandelbrot_iteration(c: complex, max_iter: int = 100) -> int:
         if abs(z) > 2:  # (Divergence condition)
             return n
     return 0  # (if it never diverges)
+
+
+
