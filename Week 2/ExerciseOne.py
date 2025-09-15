@@ -40,8 +40,6 @@ def print_report(records: list, average: float) -> None:
     print(f"Average Grade: {average}")
     print("--------------------")
 
-    #filter out students with a grade >= 80
-    filtered_records = [record for record in records if float(record['Grade']) >= 80.0]
 
     print("Student Report")
     print("--------------")

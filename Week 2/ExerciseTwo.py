@@ -12,15 +12,33 @@
 	# Visualize_Mandel
 		# Create Plot in right size
 		# Populate plot with pixels depending on div_index
+import numpy as np
+import matplotlib.pyplot as plt
 
 import numpy as np
-def map_pixel_to_complex(i: int,j: int, width: int, x_range: tuple(float,float) = (-1.5,0.5),y_range: tuple(float,float) = (-1,1)) -> complex:
+
+def generate_mandelbrot(width: int, max_iter: int = 100):
+    # Create array to store iteration counts
+    image = np.zeros((width, width))
+
+    # Generate the Mandelbrot set
+    for i in range(width):
+        for j in range(width):
+            c = map_pixel_to_complex(i, j, width)
+            image[i, j] = mandelbrot_iteration(c, max_iter)
+
+    # Visualize
+    plt.imshow(image, extent=[-1.5, 0.5, -1, 1], cmap='hot')
+    plt.colorbar()
+    plt.show()
+
+def map_pixel_to_complex(i: int,j: int, width: int, x_range: tuple = (-1.5,0.5),y_range: tuple = (-1,1)) -> complex:
     ## Maps a pixel coordinate (i,j) to a point in the complex plane
     
 	x_min,x_max = x_range
 	y_min,y_max = y_range
-	x = x_min + (j / width) * (x_max - x_min)
-	y = y_min + (i / width) * (y_max - y_min)
+	x = x_min + (j / (width-1)) * (x_max - x_min)
+	y = y_min + (i / (width-1)) * (y_max - y_min)
 	return complex(x,y)
 
 def mandelbrot_iteration(c: complex, max_iter: int = 100) -> int:
@@ -43,3 +61,4 @@ def mandelbrot_iteration(c: complex, max_iter: int = 100) -> int:
 
 
 
+generate_mandelbrot(200, 100)
