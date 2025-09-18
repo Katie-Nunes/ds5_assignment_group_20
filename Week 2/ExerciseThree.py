@@ -2,7 +2,8 @@ import networkx as nx
 import random
 import pandas as pd
 import matplotlib.pyplot as plt
-from typing import Hashable,Dict
+from typing import Hashable,Dict,Any
+import numpy as np
 #3.1
 # calc_pagerank (graph)
 # initialize_graph(k)
@@ -12,6 +13,7 @@ def main(k, M, N):
     G = nx.star_graph(k)
     Graph = build_ba_graph(G, M, N)
     print(max(Graph.nodes())) # Sanity Check
+    return Graph
 
 
     
@@ -29,7 +31,7 @@ def preferential_attach_targets(G: nx.Graph, M: int) -> int:
     G.add_node(new_node)
 
     # Select M targets using preferential attachment
-    targets = random.choices(nodes, weights=probabilities, k=M)
+    
 
     # Add edges to the selected targets
     targets = []
@@ -63,7 +65,7 @@ def build_ba_graph(G: nx.Graph, M: int, N: int) -> nx.Graph:
     return G
 
 def random_walk_pagerank(G: nx.DiGraph | nx.DiGraph, 
-    alpha: float = 0.85, 
+     alpha: float = 0.85, 
      steps: int = 100000,
      start: Hashable = None,
      seed: int = None) -> Dict[Hashable, float]:
