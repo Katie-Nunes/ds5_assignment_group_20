@@ -38,6 +38,49 @@ def build_ba_graph(G: nx.Graph, M: int, N: int) -> nx.Graph:
         preferential_attach_targets(G, M)
     return G
 
+def random_walk_pagerank(G: nx.DiGraph | nx.DiGraph, 
+                         alpha: float = 0.85, 
+                         steps: int = 3000_000
+                         start: Hashable | None = None,
+                         seed: int | None = None,
+                            ) -> dict[Hashable, float]:
+## Aaron Randm walk pagerank with teleportation 
+##    Exercise 3.1 + 3.2 in this one block line of code
+    if seed is not None:
+        random.seed(seed)
+
+    nodes = list(G.nodes())
+    if not nodes:
+        return {}
+# Pick starting node 
+    current = start if (start in G) else random.choice(nodes)
+    # Track number of visits to each node.
+    # At the end, dividing visits by steps gives PageRank estimate.
+    visits: Dict[Hashable, int] = {node: 0 for node in nodes}
+
+    for _ in range(steps):
+        visits[current] += 1
+        follow_link = (random.random() < alpha)
+        if follow_link
+            # 3.1 undirected 
+            if not G.is_directed():
+                nbrs = list(G.neighbors(current))
+            # 3.2 directedd
+            else:
+                nbrs = list(G.successors(current))
+            if nbrs:
+                current = random.choice(nbrs)
+                continue
+            # if no neighbors fall through to teleport
+        current = random.choice(nodes)
+
+    # Teleport (used in both cases 3.1 and 3.2)
+    total = float(sum(visits.values()))
+    return {n: visits[n] / total for n in nodes}
+    
+        
+
+
 # 3.2
 def load_csv(path: str) -> nx.DiGraph:
     df = pd.read_csv(path)
