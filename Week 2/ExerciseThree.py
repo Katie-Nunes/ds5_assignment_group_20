@@ -1,7 +1,8 @@
 import networkx as nx
 import random
 import pandas as pd
-
+import matplotlib.pyplot as plt
+from typing import Hashable,Dict
 #3.1
 # calc_pagerank (graph)
 # initialize_graph(k)
@@ -11,6 +12,19 @@ def main(k, M, N):
     G = nx.star_graph(k)
     Graph = build_ba_graph(G, M, N)
     print(max(Graph.nodes())) # Sanity Check
+
+
+    plt.figure(figsize=(10, 8))
+    nx.draw(
+        Graph,
+        with_labels=True,
+        node_size=50,
+        font_size=8,
+        node_color="skyblue",
+        edge_color="gray"
+    )
+    plt.title(f"Barabási–Albert Graph with {Graph.number_of_nodes()} nodes")
+    plt.show()
 
 def preferential_attach_targets(G: nx.Graph, M: int) -> int:
     # Calculate total degree sum
@@ -39,11 +53,11 @@ def build_ba_graph(G: nx.Graph, M: int, N: int) -> nx.Graph:
     return G
 
 def random_walk_pagerank(G: nx.DiGraph | nx.DiGraph, 
-                         alpha: float = 0.85, 
-                         steps: int = 3000_000
-                         start: Hashable | None = None,
-                         seed: int | None = None,
-                            ) -> dict[Hashable, float]:
+    alpha: float = 0.85, 
+     steps: int = 3_000_000,
+     start: Hashable | None = None,
+     seed: int | None = None,
+) -> dict[Hashable, float]:
 ## Aaron Randm walk pagerank with teleportation 
 ##    Exercise 3.1 + 3.2 in this one block line of code
     if seed is not None:
@@ -61,7 +75,7 @@ def random_walk_pagerank(G: nx.DiGraph | nx.DiGraph,
     for _ in range(steps):
         visits[current] += 1
         follow_link = (random.random() < alpha)
-        if follow_link
+        if follow_link:
             # 3.1 undirected 
             if not G.is_directed():
                 nbrs = list(G.neighbors(current))
