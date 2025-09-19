@@ -132,7 +132,7 @@ def draw_graph_with_scores(G: nx.Graph | nx.DiGraph,
     
     # Draw the graph
     if isinstance(G, nx.DiGraph):
-        nx.draw_networkx_edges(G, pos, alpha=0.3, arrowstyle='->', 
+        nx.draw_networkx_edges(G, pos, alpha=0.3,
                               arrowsize=10, edge_color='gray', width=0.5)
     else:
         nx.draw_networkx_edges(G, pos, alpha=0.3, edge_color='gray', width=0.5)
@@ -279,7 +279,7 @@ def create_summary_table(properties_ba: Dict[str, Any],
 def load_csv(path: str) -> nx.DiGraph:
     df = pd.read_csv(path)
     Graphtype = nx.DiGraph()
-    G = nx.from_pandas_edgelist(df, edge_attr='weight', create_using=Graphtype)
+    G = nx.from_pandas_edgelist(df, source='id1', target='id2', create_using=Graphtype)
     return G
 
 if __name__ == "__main__":
