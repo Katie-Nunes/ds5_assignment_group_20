@@ -135,3 +135,59 @@ def drop_exact_duplicates(df, subset=None):
     """
     out = _copy(df)
     return out.drop_duplicates(subset=subset, keep="first").reset_index(drop=True)
+
+# Person C's integration and main function
+def clean_hotel_data(file_path, verbose=True):
+    """
+    Main data cleaning pipeline that integrates all cleaning functions.
+    
+    Args:
+        file_path (str): Path to the Excel file
+        verbose (bool): Whether to print cleaning steps and results
+        
+    Returns:
+        pd.DataFrame: Cleaned hotel bookings data
+        
+    Person: Person C
+    """
+    if verbose:
+        print("=== HOTEL BOOKINGS DATA CLEANING PIPELINE ===")
+        print("Loading data...")
+    
+    # Load data (Person A)
+    df = load_data(file_path)
+    
+    if verbose:
+        print(f"Initial data shape: {df.shape}")
+        print("\nInitial inspection:")
+        inspection = inspect_data(df)
+        print(f"Missing values: {sum(inspection['missing_values'].values())}")
+        print(f"Duplicates: {inspection['duplicates']}")
+    
+    # Data cleaning pipeline (Person B's functions)
+    cleaning_steps = [
+        ("Dropping exact duplicates", lambda x: drop_exact_duplicates(x)),
+        ("Cleaning meal codes", clean_meal),
+        ("Standardizing country codes", standardize_country),
+        ("Parsing reservation dates", parse_reservation_date),
+        ("Fixing numeric values", fix_numerics),
+        ("Filling missing values", fill_missing_common),
+        ("Handling year outliers", handle_arrival_year_outliers)
+    ]
+    
+    # Apply all cleaning steps
+    cleaned_df = df.copy()
+    for step_name, step_func in cleaning_steps:
+        if verbose:
+            print(f"Applying: {step_name}")
+        cleaned_df = step_func(cleaned_df)
+    
+    if verbose:
+        print(f"\nFinal data shape: {cleaned_df.shape}")
+        final_inspection = inspect_data(cleaned_df)
+        print(f"Remaining missing values: {sum(final_inspection['missing_values'].values())}")
+        print(f"Remaining duplicates: {final_inspection['duplicates']}")
+        print("\nCleaning completed successfully!")
+    
+    return cleaned_df
+
