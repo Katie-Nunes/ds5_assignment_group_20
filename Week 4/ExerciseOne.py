@@ -136,7 +136,7 @@ def drop_exact_duplicates(df, subset=None):
     out = _copy(df)
     return out.drop_duplicates(subset=subset, keep="first").reset_index(drop=True)
 
-# Person C's integration and main function
+# hala
 def clean_hotel_data(file_path, verbose=True):
     """
     Main data cleaning pipeline that integrates all cleaning functions.
@@ -191,3 +191,12 @@ def clean_hotel_data(file_path, verbose=True):
     
     return cleaned_df
 
+
+## Decisions we took:
+# 1. For meal codes, we standardized to uppercase and mapped unknowns to 'UNK'.
+# 2. Country codes were validated for 2-3 character codes.
+# 3. Reservation dates were parsed with dayfirst=True to handle European date formats.  
+# 4. Numeric fields were constrained to numeric types, negatives were set to zero and count fields to Int64.
+# 5. Missing values for children and babies were filled with 0, agent and company were set to 'Unknown'.
+# 6. Arrival years greater than 2050 were set to NaN.
+# 7. Exact duplicate rows were dropped.
