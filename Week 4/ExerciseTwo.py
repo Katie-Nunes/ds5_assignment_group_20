@@ -116,7 +116,7 @@ def add_percentage_column(df, sales_col="Sales", pct_col="Percentage"):
     Returns:
         pd.DataFrame: DataFrame with added percentage column
         
-    
+    hala
     """
     out = df.copy()
     total_sales = out[sales_col].sum()
@@ -182,7 +182,63 @@ def save_report_to_excel(report_df, output_file="reportRetail.xlsx"):
     Args:
         report_df (pd.DataFrame): The final report DataFrame
         output_file (str): Output Excel file name
+
+    hala    
+    
+    """
+    report_df.to_excel(output_file, index=False, sheet_name="Sales Report")
+
+
+def generate_sales_report(input_file="detailedRetail.xlsx", output_file="reportRetail.xlsx"):
+    """
+    Main function to generate complete sales report.
+    
+    Args:
+        input_file (str): Input Excel file with detailed sales data
+        output_file (str): Output Excel file for the report
+        
+    Returns:
+        pd.DataFrame: Final assembled report
         
     hala
     """
-    report_df.to_excel(output_file, index=False, sheet_name="Sales Report")
+    try:
+        print("=== SALES REPORT GENERATION ===")
+        print("Loading data...")
+        
+        # Load data and compute category sales
+        df = load_retail_data(input_file)
+        category_sales = sales_per_category(df)
+        category_sales = add_percentage_column(category_sales)
+        
+        print("✓ Category sales computed")
+        
+        # Compute monthly sales
+        monthly_sales = sales_per_month(df)
+        monthly_sales = add_percentage_column(monthly_sales)
+        
+        print("✓ Monthly sales computed")
+        
+        # Compute manager sales
+        manager_sales = sales_per_manager(df)
+        manager_sales = add_percentage_column(manager_sales)
+        
+        print("✓ Manager sales computed")
+        
+        # Assemble final report
+        final_report = assemble_final_report(category_sales, monthly_sales, manager_sales)
+        
+        # Save to Excel
+        save_report_to_excel(final_report, output_file)
+        
+        print(f"✓ Report saved to '{output_file}'")
+        print("=== REPORT GENERATION COMPLETED ===")
+        
+        return final_report
+        
+    except FileNotFoundError:
+        print(f"Error: File '{input_file}' not found.")
+        raise
+    except Exception as e:
+        print(f"Error during report generation: {e}")
+        raise
