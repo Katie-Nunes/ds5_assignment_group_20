@@ -148,7 +148,7 @@ def clean_hotel_data(file_path, verbose=True):
     Returns:
         pd.DataFrame: Cleaned hotel bookings data
         
-    Person: Person C
+    hala
     """
     if verbose:
         print("=== HOTEL BOOKINGS DATA CLEANING PIPELINE ===")

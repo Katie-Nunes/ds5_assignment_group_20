@@ -65,3 +65,65 @@ def add_sales_percentages(df_monthly, sales_col="Sales", pct_col="Sales %"):
     total = out[sales_col].sum()
     out[pct_col] = 0.0 if total == 0 else out[sales_col] / total
     return out
+
+# hala
+
+def sales_per_manager(df, manager_col="Sales Manager", sales_col="Sales"):
+    """
+    Compute total sales for each sales manager.
+    
+    Args:
+        df (pd.DataFrame): Input DataFrame with sales data
+        manager_col (str): Name of the sales manager column
+        sales_col (str): Name of the sales amount column
+        
+    Returns:
+        pd.DataFrame: DataFrame with managers and their total sales
+        
+     hala
+    """
+    out = df.copy()
+    
+    # Validate columns exist
+    if manager_col not in out.columns:
+        raise ValueError(f"'{manager_col}' not found in DataFrame.")
+    if sales_col not in out.columns:
+        raise ValueError(f"'{sales_col}' not found in DataFrame.")
+    
+    # Ensure sales column is numeric
+    out[sales_col] = pd.to_numeric(out[sales_col], errors="coerce").fillna(0)
+    
+    # Group by sales manager and sum sales
+    manager_sales = (
+        out.groupby(manager_col, as_index=False)[sales_col]
+        .sum()
+        .rename(columns={sales_col: "Sales"})
+        .sort_values("Sales", ascending=False)
+        .reset_index(drop=True)
+    )
+    
+    return manager_sales
+
+def add_percentage_column(df, sales_col="Sales", pct_col="Percentage"):
+    """
+    Add percentage column to any sales DataFrame.
+    
+    Args:
+        df (pd.DataFrame): DataFrame with sales data
+        sales_col (str): Name of the sales column
+        pct_col (str): Name for the new percentage column
+        
+    Returns:
+        pd.DataFrame: DataFrame with added percentage column
+        
+    
+    """
+    out = df.copy()
+    total_sales = out[sales_col].sum()
+    
+    if total_sales == 0:
+        out[pct_col] = 0.0
+    else:
+        out[pct_col] = out[sales_col] / total_sales
+    
+    return out
