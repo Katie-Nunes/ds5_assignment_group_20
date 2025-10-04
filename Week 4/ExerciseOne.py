@@ -200,3 +200,15 @@ def clean_hotel_data(file_path, verbose=True):
 # 5. Missing values for children and babies were filled with 0, agent and company were set to 'Unknown'.
 # 6. Arrival years greater than 2050 were set to NaN.
 # 7. Exact duplicate rows were dropped.
+
+# Main execution block
+if __name__ == "__main__":
+    try:
+        # Clean the data
+        cleaned_data = clean_hotel_data('hotelBookings.xlsx', verbose=True)
+        print("\nData cleaning completed successfully!")
+        
+    except FileNotFoundError:
+        print("Error: hotelBookings.xlsx file not found.")
+    except Exception as e:
+        print(f"Error during cleaning: {e}")
