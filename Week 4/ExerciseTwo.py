@@ -242,3 +242,17 @@ def generate_sales_report(input_file="detailedRetail.xlsx", output_file="reportR
     except Exception as e:
         print(f"Error during report generation: {e}")
         raise
+
+# Main execution block
+if __name__ == "__main__":
+    """
+    Main execution - runs when script is executed directly.
+    """
+    try:
+        # Generate the complete sales report
+        report = generate_sales_report()
+        print("\nFinal Report Preview:")
+        print(report.head(10))
+        
+    except Exception as e:
+        print(f"Error: {e}")
