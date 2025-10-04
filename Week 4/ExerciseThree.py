@@ -36,3 +36,67 @@ def apply_sentiment_analysis(df, tweet_col="Tweet", language_col="Language"):
     result_df["sentiment"] = sentiments
     
     return result_df
+
+def analyze_tweet_sentiments(df, tweet_col="Tweet"):
+    """
+    Main function to perform complete tweet analysis (language detection + sentiment analysis).
+    
+    Args:
+        df (pd.DataFrame): DataFrame containing tweet data
+        tweet_col (str): Name of the column containing tweet text
+        
+    Returns:
+        pd.DataFrame: DataFrame with added 'language' and 'sentiment' columns
+        
+    hala
+    """
+    print("=== TWEET SENTIMENT ANALYSIS PIPELINE ===")
+    
+    # Step 
+    print("1. Detecting languages...")
+    df_with_language = detect_tweet_languages(df, tweet_col)
+    
+    # Show language distribution
+    language_counts = df_with_language['Language'].value_counts()
+    print(f"   Language distribution: {dict(language_counts.head())}")
+    
+    # Step 2
+    print("2. Analyzing sentiments...")
+    df_with_sentiment = apply_sentiment_analysis(df_with_language)
+    
+    # Show sentiment distribution
+    sentiment_counts = df_with_sentiment['sentiment'].value_counts()
+    print(f"   Sentiment distribution: {dict(sentiment_counts)}")
+    
+    print("✓ Analysis completed successfully!")
+    
+    return df_with_sentiment
+
+def main():
+    """
+    Main function to run the complete tweet sentiment analysis.
+    """
+    try:
+        
+        df = pd.read_excel("tweets.xlsx")
+        
+        
+        
+        results = analyze_tweet_sentiments(df)
+        
+        print("\nFinal Results:")
+        print(results[['Tweet', 'Language', 'sentiment']].head())
+        
+        
+        
+        return results
+        
+    except FileNotFoundError:
+        print("Error: tweets.xlsx file not found. Please ensure the file exists.")
+        return None
+    except Exception as e:
+        print(f"Error in analysis: {e}")
+        return None
+
+if __name__ == "__main__":
+    main()
