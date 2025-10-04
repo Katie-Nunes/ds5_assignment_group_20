@@ -127,3 +127,62 @@ def add_percentage_column(df, sales_col="Sales", pct_col="Percentage"):
         out[pct_col] = out[sales_col] / total_sales
     
     return out
+
+def assemble_final_report(category_df, monthly_df, manager_df):
+    """
+    Assemble all metrics into final report DataFrame.
+    
+    Args:
+        category_df (pd.DataFrame): Category sales data
+        monthly_df (pd.DataFrame): Monthly sales data  
+        manager_df (pd.DataFrame): Manager sales data
+        
+    Returns:
+        pd.DataFrame: Final assembled report
+        
+    hala
+    """
+    report_data = []
+    
+    # Add category section
+    report_data.append({"Metric": "=== SALES BY CATEGORY ===", "Sales": "", "Percentage": ""})
+    for _, row in category_df.iterrows():
+        report_data.append({
+            "Metric": row.get("Category", "Unknown"),
+            "Sales": row["Sales"],
+            "Percentage": row["Percentage"]
+        })
+    
+    # Add monthly section
+    report_data.append({"Metric": "", "Sales": "", "Percentage": ""})
+    report_data.append({"Metric": "=== SALES BY MONTH ===", "Sales": "", "Percentage": ""})
+    for _, row in monthly_df.iterrows():
+        report_data.append({
+            "Metric": row.get("Month", "Unknown"),
+            "Sales": row["Sales"],
+            "Percentage": row["Percentage"]
+        })
+    
+    # Add manager section
+    report_data.append({"Metric": "", "Sales": "", "Percentage": ""})
+    report_data.append({"Metric": "=== SALES BY MANAGER ===", "Sales": "", "Percentage": ""})
+    for _, row in manager_df.iterrows():
+        report_data.append({
+            "Metric": row.get("Sales Manager", "Unknown"),
+            "Sales": row["Sales"],
+            "Percentage": row["Percentage"]
+        })
+    
+    return pd.DataFrame(report_data)
+
+def save_report_to_excel(report_df, output_file="reportRetail.xlsx"):
+    """
+    Save the final report to an Excel file.
+    
+    Args:
+        report_df (pd.DataFrame): The final report DataFrame
+        output_file (str): Output Excel file name
+        
+    hala
+    """
+    report_df.to_excel(output_file, index=False, sheet_name="Sales Report")
