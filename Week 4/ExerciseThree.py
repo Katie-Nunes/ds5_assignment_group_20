@@ -1,5 +1,9 @@
 import pandas as pd
 from langdetect import detect, DetectorFactory
+# for the sentiment functions
+from textblob import TextBlob
+from nltk.sentiment import SentimentIntensityAnalyzer
+
 
 # Make language detection deterministic
 DetectorFactory.seed = 0
@@ -9,6 +13,61 @@ def detect_tweet_languages(tweet: str) -> str:
         return detect(tweet)
     except:
         return "Unknown"
+
+def _simple_clean(text: str) -> str:
+    """
+    Tiny helper to reduce obvious noise:
+    - ensure it's a string
+    - remove '@' and '#' symbols (keep the word)
+    - crudely strip url bits ('http', 'www.') to avoid bias
+    - collapse repeated spaces
+    """
+    if not isinstance(text, str):
+        return ""
+    t = text.replace("@", "").replace("#", "")
+    t = t.replace("http", " ").replace("www.", " ")
+    t = " ".join(t.split())
+    return t
+
+def analyze_sentiment_english(tweet: str) -> str:
+    """
+    ENGLISH sentiment (TextBlob).
+    Spec rule:
+      positive if polarity > 0
+      negative if polarity < 0
+      neutral  otherwise
+    """
+    text = _simple_clean(tweet)
+    polarity = float(TextBlob(text).sentiment.polarity)
+    if polarity > 0:
+        return "positive"
+    if polarity < 0:
+        return "negative"
+    return "neutral"
+
+# reuse a single VADER instance (faster)
+_vader = None
+def _get_vader():
+    global _vader
+    if _vader is None:
+        _vader = SentimentIntensityAnalyzer()
+    return _vader
+
+def analyze_sentiment_other(tweet: str) -> str:
+    """
+    NON-English (fallback) sentiment (NLTK VADER).
+    Spec rule:
+      positive if compound >= 0.05
+      negative if compound <= -0.05
+      neutral  otherwise
+    """
+    text = _simple_clean(tweet)
+    compound = float(_get_vader().polarity_scores(text)["compound"])
+    if compound >= 0.05:
+        return "positive"
+    if compound <= -0.05:
+        return "negative"
+    return "neutral"
 
 def apply_sentiment_analysis(df, tweet_col="Tweet", language_col="Language"):
     """
