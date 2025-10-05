@@ -1,3 +1,15 @@
+import pandas as pd
+from langdetect import detect, DetectorFactory
+
+# Make language detection deterministic
+DetectorFactory.seed = 0
+
+def detect_tweet_languages(tweet: str) -> str:
+    try:
+        return detect(tweet)
+    except:
+        return "Unknown"
+
 def apply_sentiment_analysis(df, tweet_col="Tweet", language_col="Language"):
     """
     Apply language-specific sentiment analysis to each tweet in the DataFrame.
@@ -78,9 +90,9 @@ def main():
     """
     try:
         
-        df = pd.read_excel("tweets.xlsx")
-        
-        
+        df = pd.read_excel("tweets-1.xlsx")
+        df['language'] = df['Tweet'].apply(detect_tweet_languages)
+        print("tt")
         
         results = analyze_tweet_sentiments(df)
         

@@ -3,9 +3,82 @@ import pandas as pd
 import numpy as np
 
 
+# Katie
+def load_data(file_path):
+    df = pd.read_excel(file_path)
+    return df
 
-# Aaron 
-def copy(df):
+def inspect_data(
+    df: pd.DataFrame,
+    expected_dtypes: dict = None,
+    strict_order: bool = False,
+) -> bool:
+    """Check DF matches schema. Returns details of mismatches."""
+
+    expected_dtypes = {
+        'hotel': np.object_,
+        'is_canceled': np.integer,
+        'lead_time': np.integer,
+        'arrival_date_year': np.floating,
+        'arrival_date_month': np.object_,
+        'arrival_date_week_number': np.integer,
+        'arrival_date_day_of_month': np.integer,
+        'stays_in_weekend_nights': np.integer,
+        'stays_in_week_nights': np.integer,
+        'adults': np.integer,
+        'children': np.integer,
+        'babies': np.integer,
+        'meal': np.object_,
+        'country': np.object_,
+        'market_segment': np.object_,
+        'distribution_channel': np.object_,
+        'is_repeated_guest': np.integer,
+        'previous_cancellations': np.integer,
+        'previous_bookings_not_canceled': np.integer,
+        'reserved_room_type': np.object_,
+        'assigned_room_type': np.object_,
+        'booking_changes': np.integer,
+        'deposit_type': np.object_,
+        'agent': np.object_,  # could be np.integer if not 'NULL'
+        'company': np.object_,  # could be np.integer if not 'NULL'
+        'days_in_waiting_list': np.integer,
+        'customer_type': np.object_,
+        'adr': np.floating,
+        'required_car_parking_spaces': np.integer,
+        'total_of_special_requests': np.integer,
+        'reservation_status': np.object_,
+        'reservation_status_date': 'datetime64[ns]',  # can be parsed to datetime
+    }
+
+    errors = []
+    expected_cols = list(expected_dtypes.keys())
+    actual_cols = df.columns.tolist()
+
+    if strict_order and actual_cols != expected_cols:
+        errors.append(f"Column order mismatch! Expected {expected_cols}, got {actual_cols}")
+    else:
+        missing = [c for c in expected_cols if c not in actual_cols]
+        extra = [c for c in actual_cols if c not in expected_cols]
+        if missing:
+            errors.append(f"Missing columns: {missing}")
+        if extra:
+            errors.append(f"Unexpected columns: {extra}")
+
+    for col, expected_dtype in expected_dtypes.items():
+        if col in df and not np.issubdtype(df[col].dtype, expected_dtype):
+            errors.append(
+                f"Column '{col}' wrong dtype → Expected {expected_dtype}, got {df[col].dtype}"
+            )
+
+    if errors:
+        for error in errors:
+            print(error)
+        return False
+    else:
+        return True
+
+# Aaron
+def _copy(df):
     """Return a shallow copy to avoid in-place mutation."""
     return df.copy()
 
@@ -29,7 +102,7 @@ def clean_meal(df, col="meal"):
         .str.upper()
         .replace({"": pd.NA})
     )
-    # simple canonical map 
+    # simple canonical map
     canonical = {"BB": "BB", "HB": "HB", "FB": "FB"}
     out[col] = s.map(canonical).fillna("UNK")
     return out
@@ -97,7 +170,7 @@ def fix_numerics(
 
     for col in integer_cols:
         if col in out.columns:
-            out[col] = pd.to_numeric(out[col], errors="coerce").fillna(0).round().astype("Int64")
+            out[col] = pd.to_numeric(out[col], errors="coerce").fillna(0).round().astype("int64")
 
     return out
 
@@ -140,30 +213,29 @@ def drop_exact_duplicates(df, subset=None):
 def clean_hotel_data(file_path, verbose=True):
     """
     Main data cleaning pipeline that integrates all cleaning functions.
-    
+
     Args:
         file_path (str): Path to the Excel file
         verbose (bool): Whether to print cleaning steps and results
-        
+
     Returns:
         pd.DataFrame: Cleaned hotel bookings data
-        
+
     hala
     """
     if verbose:
         print("=== HOTEL BOOKINGS DATA CLEANING PIPELINE ===")
         print("Loading data...")
-    
+
     # Load data (Person A)
     df = load_data(file_path)
-    
+
     if verbose:
         print(f"Initial data shape: {df.shape}")
         print("\nInitial inspection:")
         inspection = inspect_data(df)
-        print(f"Missing values: {sum(inspection['missing_values'].values())}")
-        print(f"Duplicates: {inspection['duplicates']}")
-    
+        print(f"{inspection}")
+
     # Data cleaning pipeline (Person B's functions)
     cleaning_steps = [
         ("Dropping exact duplicates", lambda x: drop_exact_duplicates(x)),
@@ -174,28 +246,26 @@ def clean_hotel_data(file_path, verbose=True):
         ("Filling missing values", fill_missing_common),
         ("Handling year outliers", handle_arrival_year_outliers)
     ]
-    
+
     # Apply all cleaning steps
     cleaned_df = df.copy()
     for step_name, step_func in cleaning_steps:
         if verbose:
             print(f"Applying: {step_name}")
         cleaned_df = step_func(cleaned_df)
-    
+
     if verbose:
         print(f"\nFinal data shape: {cleaned_df.shape}")
         final_inspection = inspect_data(cleaned_df)
-        print(f"Remaining missing values: {sum(final_inspection['missing_values'].values())}")
-        print(f"Remaining duplicates: {final_inspection['duplicates']}")
         print("\nCleaning completed successfully!")
-    
+
     return cleaned_df
 
 
 ## Decisions we took:
 # 1. For meal codes, we standardized to uppercase and mapped unknowns to 'UNK'.
 # 2. Country codes were validated for 2-3 character codes.
-# 3. Reservation dates were parsed with dayfirst=True to handle European date formats.  
+# 3. Reservation dates were parsed with dayfirst=True to handle European date formats.
 # 4. Numeric fields were constrained to numeric types, negatives were set to zero and count fields to Int64.
 # 5. Missing values for children and babies were filled with 0, agent and company were set to 'Unknown'.
 # 6. Arrival years greater than 2050 were set to NaN.
@@ -203,12 +273,12 @@ def clean_hotel_data(file_path, verbose=True):
 
 # Main execution block
 if __name__ == "__main__":
-    try:
+    #try:
         # Clean the data
-        cleaned_data = clean_hotel_data('hotelBookings.xlsx', verbose=True)
-        print("\nData cleaning completed successfully!")
-        
-    except FileNotFoundError:
-        print("Error: hotelBookings.xlsx file not found.")
-    except Exception as e:
-        print(f"Error during cleaning: {e}")
+    cleaned_data = clean_hotel_data('hotelBookings-1.xlsx', verbose=True)
+    print("\nData cleaning completed successfully!")
+
+    #except FileNotFoundError:
+    #    print("Error: hotelBookings.xlsx file not found.")
+    #except Exception as e:
+    #    print(f"Error during cleaning: {e}")

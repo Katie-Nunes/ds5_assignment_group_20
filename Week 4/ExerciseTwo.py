@@ -1,6 +1,14 @@
 # Imports 
 import pandas as pd
 
+# Katie
+def load_retail_data(file_path):
+    df = pd.read_excel(file_path)
+    return df
+
+def sales_per_category(df):
+    return df.groupby('Category')['Sales'].sum().reset_index()
+
 # Fixed calendar order for sorting
 _MONTH_ORDER = [
     "January","February","March","April","May","June",
@@ -62,7 +70,7 @@ def add_sales_percentages(df_monthly, sales_col="Sales", pct_col="Sales %"):
     append percentage of total column in [0, 1].
     """
     out = df_monthly.copy()
-    total = out[sales_col].sum()
+    total = out["Sales"].sum()
     out[pct_col] = 0.0 if total == 0 else out[sales_col] / total
     return out
 
@@ -189,7 +197,7 @@ def save_report_to_excel(report_df, output_file="reportRetail.xlsx"):
     report_df.to_excel(output_file, index=False, sheet_name="Sales Report")
 
 
-def generate_sales_report(input_file="detailedRetail.xlsx", output_file="reportRetail.xlsx"):
+def generate_sales_report(input_file="detailedRetail-1.xlsx", output_file="reportRetail.xlsx"):
     """
     Main function to generate complete sales report.
     
@@ -202,57 +210,57 @@ def generate_sales_report(input_file="detailedRetail.xlsx", output_file="reportR
         
     hala
     """
-    try:
-        print("=== SALES REPORT GENERATION ===")
-        print("Loading data...")
-        
-        # Load data and compute category sales
-        df = load_retail_data(input_file)
-        category_sales = sales_per_category(df)
-        category_sales = add_percentage_column(category_sales)
-        
-        print("✓ Category sales computed")
-        
-        # Compute monthly sales
-        monthly_sales = sales_per_month(df)
-        monthly_sales = add_percentage_column(monthly_sales)
-        
-        print("✓ Monthly sales computed")
-        
-        # Compute manager sales
-        manager_sales = sales_per_manager(df)
-        manager_sales = add_percentage_column(manager_sales)
-        
-        print("✓ Manager sales computed")
-        
-        # Assemble final report
-        final_report = assemble_final_report(category_sales, monthly_sales, manager_sales)
-        
-        # Save to Excel
-        save_report_to_excel(final_report, output_file)
-        
-        print(f"✓ Report saved to '{output_file}'")
-        print("=== REPORT GENERATION COMPLETED ===")
-        
-        return final_report
-        
-    except FileNotFoundError:
-        print(f"Error: File '{input_file}' not found.")
-        raise
-    except Exception as e:
-        print(f"Error during report generation: {e}")
-        raise
+    #try:
+    print("=== SALES REPORT GENERATION ===")
+    print("Loading data...")
+
+    # Load data and compute category sales
+    df = load_retail_data(input_file)
+    category_sales = sales_per_category(df)
+    category_sales = add_percentage_column(category_sales)
+
+    print("✓ Category sales computed")
+
+    # Compute monthly sales
+    monthly_sales = sales_per_month(df)
+    monthly_sales = add_percentage_column(monthly_sales)
+
+    print("✓ Monthly sales computed")
+
+    # Compute manager sales
+    manager_sales = sales_per_manager(df)
+    manager_sales = add_percentage_column(manager_sales)
+
+    print("✓ Manager sales computed")
+
+    # Assemble final report
+    final_report = assemble_final_report(category_sales, monthly_sales, manager_sales)
+
+    # Save to Excel
+    save_report_to_excel(final_report, output_file)
+
+    print(f"✓ Report saved to '{output_file}'")
+    print("=== REPORT GENERATION COMPLETED ===")
+
+    return final_report
+
+    #except FileNotFoundError:
+    #    print(f"Error: File '{input_file}' not found.")
+    #    raise
+    #except Exception as e:
+    #    print(f"Error during report generation: {e}")
+    #    raise
 
 # Main execution block
 if __name__ == "__main__":
     """
     Main execution - runs when script is executed directly.
     """
-    try:
+    #try:
         # Generate the complete sales report
-        report = generate_sales_report()
-        print("\nFinal Report Preview:")
-        print(report.head(10))
+    report = generate_sales_report()
+    print("\nFinal Report Preview:")
+    print(report.head(10))
         
-    except Exception as e:
-        print(f"Error: {e}")
+    #except Exception as e:
+    #    print(f"Error: {e}")
