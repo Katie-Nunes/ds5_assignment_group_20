@@ -92,9 +92,9 @@ def apply_sentiment_analysis(df, tweet_col="Tweet", language_col="Language"):
         try:
             # Choose sentiment analysis function based on language
             if language == "en":
-                sentiment = analyze_sentiment_english(tweet)
+                sentiment = analyze_sentiment_english(str(tweet))
             else:
-                sentiment = analyze_sentiment_other(tweet)
+                sentiment = analyze_sentiment_other(str(tweet))
         except Exception as e:
             # Handle any errors during sentiment analysis
             print(f"Error analyzing sentiment for tweet {idx}: {e}")
@@ -125,8 +125,12 @@ def analyze_tweet_sentiments(df, tweet_col="Tweet"):
     
     # Step 
     print("1. Detecting languages...")
-    df_with_language = detect_tweet_languages(df, tweet_col)
-    
+
+    for tweet in tweet_col:
+        df["Language"] = detect_tweet_languages(tweet)
+
+    df_with_language = df
+
     # Show language distribution
     language_counts = df_with_language['Language'].value_counts()
     print(f"   Language distribution: {dict(language_counts.head())}")
@@ -147,27 +151,18 @@ def main():
     """
     Main function to run the complete tweet sentiment analysis.
     """
-    try:
-        
-        df = pd.read_excel("tweets-1.xlsx")
-        df['language'] = df['Tweet'].apply(detect_tweet_languages)
-        print("tt")
-        
-        results = analyze_tweet_sentiments(df)
-        
-        print("\nFinal Results:")
-        print(results[['Tweet', 'Language', 'sentiment']].head())
-        
-        
-        
-        return results
-        
-    except FileNotFoundError:
-        print("Error: tweets.xlsx file not found. Please ensure the file exists.")
-        return None
-    except Exception as e:
-        print(f"Error in analysis: {e}")
-        return None
+
+    df = pd.read_excel("tweets-1.xlsx")
+    df['language'] = df['Tweet'].apply(detect_tweet_languages)
+    print("tt")
+
+    results = analyze_tweet_sentiments(df)
+
+    print("\nFinal Results:")
+    print(results[['Tweet', 'Language', 'sentiment']].head())
+
+    return results
+
 
 if __name__ == "__main__":
     main()
