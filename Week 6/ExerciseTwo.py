@@ -93,3 +93,25 @@ plt.title('Feature Importance in Wine Quality Prediction')
 plt.gca().invert_yaxis()
 plt.tight_layout()
 plt.show()
+
+#Limitations:
+#Ordinal target treated as continuous - loses rating nature
+
+#Imbalanced classes - biases toward average scores
+
+#Subjective quality ratings - human bias in labels
+
+#Basic features - no transformations or interactions
+
+#Small dataset - 1599 samples limits complex models
+
+#Improvements:
+#Better models: Ordinal regression, classification, or neural networks
+
+#Feature engineering: Interactions, polynomials, scaling
+
+#Advanced techniques: Cross-validation, ensembles, Bayesian optimization
+
+#More data: Additional samples and features (region, grape type)
+
+#Model interpretation: SHAP values, partial dependence plots
