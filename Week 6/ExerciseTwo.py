@@ -65,3 +65,31 @@ else:
     best_r2 = gb_r2
 
 print(f"\nBest Performing Model: {best_model} (R² = {best_r2:.4f})")
+
+
+
+# Analyze feature importance for the best model
+if best_model == "Random Forest":
+    feature_importance = rf_model.feature_importances_
+else:
+    feature_importance = gb_model.feature_importances_
+
+features = X_train.columns
+importance_df = pd.DataFrame({
+    'Feature': features,
+    'Importance': feature_importance
+}).sort_values('Importance', ascending=False)
+
+print("\nFeature Importance:")
+print(importance_df)
+
+# Visualize feature importance
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(10, 6))
+plt.barh(importance_df['Feature'], importance_df['Importance'])
+plt.xlabel('Feature Importance')
+plt.title('Feature Importance in Wine Quality Prediction')
+plt.gca().invert_yaxis()
+plt.tight_layout()
+plt.show()
