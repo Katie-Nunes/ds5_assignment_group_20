@@ -41,3 +41,27 @@ print("\nGradient Boosting Performance:")
 print(f"R² Score: {gb_r2:.4f}")
 print(f"RMSE: {gb_rmse:.4f}")
 print(f"MAE: {gb_mae:.4f}")
+
+# Compare models
+# Create comparison table
+comparison = {
+    'Model': ['Random Forest', 'Gradient Boosting'],
+    'R² Score': [rf_r2, gb_r2],
+    'RMSE': [rf_rmse, gb_rmse],
+    'MAE': [rf_mae, gb_mae]
+}
+
+import pandas as pd
+comparison_df = pd.DataFrame(comparison)
+print("\nModel Comparison:")
+print(comparison_df)
+
+# Determine best model
+if rf_r2 > gb_r2:
+    best_model = "Random Forest"
+    best_r2 = rf_r2
+else:
+    best_model = "Gradient Boosting"
+    best_r2 = gb_r2
+
+print(f"\nBest Performing Model: {best_model} (R² = {best_r2:.4f})")
