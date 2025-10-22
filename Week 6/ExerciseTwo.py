@@ -1,3 +1,7 @@
+#I have used these variables names:X_train, X_test, y_train, y_test, model
+
+
+
 #hala
 # Import necessary libraries
 from sklearn.ensemble import RandomForestRegressor
