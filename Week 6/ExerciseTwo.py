@@ -5,6 +5,7 @@
 # Plot and Select appropriate model
 import pandas as pd
 import numpy as np
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 df = pd.read_csv("winequality-red.csv", sep=";")
@@ -94,13 +95,13 @@ plt.xlabel("quality")
 plt.tight_layout()
 plt.show()
 
-# 1b) A few simple feature vs target plots 
+# 1b) A few simple feature vs target plots
+
 for col in ["alcohol", "sulphates", "volatile acidity", "citric acid"]:
     if col in df.columns:
-        plt.figure()
-        plt.scatter(df[col], df["quality"], s=8, alpha=0.6)
-        plt.xlabel(col)
-        plt.ylabel("quality")
+        plt.figure(figsize=(6, 4))
+        sns.boxplot(x="quality", y=col, data=df)
+        plt.title(f"{col} vs Quality")
         plt.tight_layout()
         plt.show()
 
