@@ -2,6 +2,98 @@
 
 
 
+# Plot and Select appropriate model
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+"""
+Step 0 — Get the data
+
+If Katie already produced a cleaned DataFrame called `df`, reuse it.
+Otherwise, load the raw CSV so this file still runs on its own.
+We also keep only numeric columns (wine dataset is numeric anyway).
+"""
+try:
+    df  # reuse Katie df if defined
+except NameError:
+    df = pd.read_csv("winequality-red.csv")
+
+df = df.select_dtypes(include=[np.number])
+
+"""
+Step 1 
+1a) Target distribution: histogram of 'quality'
+1b) A few scatter plots: feature vs. target, to eyeball simple trends
+1c) Numerical correlations with 'quality' (top values)
+"""
+
+# 1a) Quality distribution
+plt.figure()
+df["quality"].plot(kind="hist", bins=12, edgecolor="black")
+plt.title("Quality distribution")
+plt.xlabel("quality")
+plt.tight_layout()
+plt.show()
+
+# 1b) A few simple feature vs target plots 
+for col in ["alcohol", "sulphates", "volatile acidity", "citric acid"]:
+    if col in df.columns:
+        plt.figure()
+        plt.scatter(df[col], df["quality"], s=8, alpha=0.6)
+        plt.xlabel(col)
+        plt.ylabel("quality")
+        plt.tight_layout()
+        plt.show()
+
+# 1c) Top linear correlations with target (numbers only)
+corr_to_quality = (
+    df.corr(numeric_only=True)["quality"]
+      .drop(labels=["quality"])
+      .sort_values(ascending=False)
+)
+# Keep this in a variable; so teammates can print or inspect in notebook if they want
+top_corr_with_quality = corr_to_quality.head(6)
+
+"""
+Step 2 — Train/Test split
+
+Target (y) is 'quality'; features (X) are the remaining columns.
+Use stratified split so the distribution of quality is similar in train and test.
+"""
+
+from sklearn.model_selection import train_test_split
+
+y = df["quality"].astype(float)
+X = df.drop(columns=["quality"])
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+"""
+Step 3 — Simple baseline model (training performance only)
+
+Fit a plain Linear Regression on the TRAINING set.
+We report only TRAINING metrics here (R² and RMSE).
+Hal will evaluate on the TEST set and try stronger models.
+"""
+
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score, mean_squared_error
+
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Training-only performance (leave test evaluation to Person C)
+y_pred_train = model.predict(X_train)
+r2_train = r2_score(y_train, y_pred_train)
+rmse_train = mean_squared_error(y_train, y_pred_train, squared=False)
+
+# Variables exposed for Hala:
+# - X_train, X_test, y_train, y_test
+# - model (fitted on training data)
+
 #hala
 # Import necessary libraries
 from sklearn.ensemble import RandomForestRegressor
