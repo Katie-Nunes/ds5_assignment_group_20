@@ -107,3 +107,83 @@ def mean_IOU(input):
     return np.average(input)
 
 df = pd.read_csv("output.csv")
+
+#  Logistic model on IOU
+# Goal: use IoU (X) to predict category (y: 0 = not infected, 1 = infected)
+# Steps:
+#   1) Read labels from training.xlsx and merge with output.csv IoU by matching the box coordinates.
+#   2) Fit a simple logistic regression: y ~ IOU.
+#   3) Report R^2 (and accuracy for extra intuition).
+
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import r2_score, accuracy_score
+
+def load_iou_with_labels(iou_csv_path: str, training_xlsx_path: str) -> pd.DataFrame:
+    """
+    Merge the IoU values with the true labels (category) from training.xlsx.
+    We join on the 5 keys that uniquely describe a box in both files:
+    filename, min_r, min_c, max_r, max_c.
+    """
+    # IoU that Katie saved
+    iou_df = pd.read_csv(iou_csv_path)
+
+    # Training file has the category  + box coordinates
+    # We only load what we need to keep things simple.
+    gt = pd.read_excel(
+        "training.xlsx",
+        usecols=["filename", "category", "min_r", "min_c", "max_r", "max_c"]
+    )
+
+    # Merge: left join so we only keep boxes for which we have IoU
+    merged = pd.merge(
+        iou_df,
+        gt,
+        on=["filename", "min_r", "min_c", "max_r", "max_c"],
+        how="left",
+        validate="1:1"
+    )
+
+    # Drop rows without a category (shouldn't happen if files align, but just in case)
+    merged = merged.dropna(subset=["category", "iou"]).reset_index(drop=True)
+
+    return merged
+
+def fit_logistic_on_iou(data: pd.DataFrame):
+    """
+    Fit a logistic regression that predicts category from a single feature: IoU.
+    Returns the fitted model, R^2 on training data, and accuracy on training data.
+    """
+    # X must be 2D for scikit-learn (n_samples, n_features).
+    X = data["iou"].to_numpy().reshape(-1, 1)
+    y = data["category"].astype(int).to_numpy()
+
+    # Basic logistic regression (no fancy options).
+    model = LogisticRegression()
+    model.fit(X, y)
+
+    # Predictions as probabilities (for R^2) and as class labels (for accuracy).
+    y_prob = model.predict_proba(X)[:, 1]  # probability of class 1
+    y_pred = model.predict(X)
+
+    # R^2 between true labels and predicted probabilities.
+    r2 = r2_score(y, y_prob)
+
+    # Accuracy is also helpful for a classification task.
+    acc = accuracy_score(y, y_pred)
+
+    return model, r2, acc
+
+# df (IoU only) was already read above in Katie code: df = pd.read_csv("output.csv")
+# Merge it with labels from training.xlsx
+iou_with_labels = load_iou_with_labels("output.csv", "training.xlsx")
+
+# Fit logistic regression on the merged data
+logit_model, r2_train, acc_train = fit_logistic_on_iou(iou_with_labels)
+
+# Print short, clear results for the report
+print(" Logistic regression on IOU")
+print(f"Samples used: {len(iou_with_labels)}")
+print(f"Train R^2 (y vs. predicted probability): {r2_train:.4f}")
+print(f"Train Accuracy: {acc_train:.4f}")
