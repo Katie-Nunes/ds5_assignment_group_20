@@ -7,6 +7,63 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+df = pd.read_csv("winequality-red.csv", sep=";")
+
+
+def analyze_and_clean_dataset(df):
+    print(f"Dataset shape: {df.shape}")
+
+    # 1) Missing values
+    missing = df.isna().sum()
+    missing = missing[missing > 0]
+    if missing.empty:
+        print("\nNo missing values")
+    else:
+        print("\nMissing values:")
+        print(missing.to_string())
+
+    # 2) Duplicates
+    dup_count = df.duplicated().sum()
+    print(f"\nDuplicate rows: {dup_count}")
+    df = df.drop_duplicates()
+    # 3) Data types
+    print("\nData types:")
+    print(df.dtypes.to_string())
+
+
+    # 5) Outlier analysis (IQR) for numeric columns
+    cols = df.columns
+
+    df = df.apply(pd.to_numeric, errors='coerce', axis=1)
+
+    n = len(df)
+    rows = []
+    for col in cols:
+        x = df[col].dropna()
+        if x.empty:
+            continue
+        q1, q3 = x.quantile([0.25, 0.75])
+        iqr = q3 - q1
+        if iqr == 0:
+            continue
+        lb, ub = q1 - 1.5 * iqr, q3 + 1.5 * iqr
+        mask = (df[col] < lb) | (df[col] > ub)
+        cnt = int(mask.sum())
+        if cnt:
+            rows.append({
+                "column": col,
+                "outliers": cnt,
+                "percent": round(100 * cnt / n, 2)
+            })
+    if rows:
+        print("\nOutlier summary:")
+        print(pd.DataFrame(rows).to_string(index=False))
+    else:
+        print("\nNo notable outliers")
+    return df
+
+df = analyze_and_clean_dataset(df)
+# Outliers have been noted, but are not treated here
 """
 Step 0 — Get the data
 
@@ -14,13 +71,14 @@ If Katie already produced a cleaned DataFrame called `df`, reuse it.
 Otherwise, load the raw CSV so this file still runs on its own.
 We also keep only numeric columns (wine dataset is numeric anyway).
 """
+
 try:
     df  # reuse Katie df if defined
 except NameError:
     df = pd.read_csv("winequality-red.csv")
 
 df = df.select_dtypes(include=[np.number])
-
+print("boo")
 """
 Step 1 
 1a) Target distribution: histogram of 'quality'
@@ -88,7 +146,7 @@ model.fit(X_train, y_train)
 # Training-only performance (leave test evaluation to Person C)
 y_pred_train = model.predict(X_train)
 r2_train = r2_score(y_train, y_pred_train)
-rmse_train = mean_squared_error(y_train, y_pred_train, squared=False)
+rmse_train = mean_squared_error(y_train, y_pred_train)
 
 # Variables exposed for Hala:
 # - X_train, X_test, y_train, y_test

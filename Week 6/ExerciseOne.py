@@ -1,9 +1,44 @@
 #I have used these variable names for part A:X_train, X_test, y_train, y_test
-# For part B:model (the trained LinearRegression model), X_train, y_train 
+# For part B:model (the trained LinearRegression model), X_train, y_train
 
-# IMPORTS 
+# IMPORTS
 import numpy as np
+import pandas as pd
+import sklearn.model_selection
+from sklearn.metrics import r2_score, mean_squared_error
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.pipeline import Pipeline
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+import matplotlib.pyplot as plt
 
+
+np.random.seed(2)
+
+x = np.random.uniform(0, 10, 200)
+y = 2*x**2 - 5 *x + 3 + np.random.normal(0, 10, 200)
+
+plt.scatter(x, y)
+plt.xlabel("x")
+plt.ylabel("y")
+plt.title("Dataset")
+plt.show()
+
+# Decision regression model, it looks either like an exponential growing, or like the RHS of a parabola
+
+X_train, X_test, y_train, y_test = sklearn.model_selection.train_test_split(x,y, train_size=0.8)
+
+input_train = pd.DataFrame({"x": X_train, "y": y_train})
+input_test = pd.DataFrame({"x": X_test, "y": y_test})
+
+train_x = input_train["x"]
+train_x_sq = input_train["x"]**2
+train_x_poly = pd.DataFrame({"x": train_x, "x_sq": train_x_sq})
+X_poly = sm.add_constant(train_x_poly)
+
+# Fit the model
+model = sm.OLS(input_train["y"], X_poly).fit()
 
 
 # Train and evaluate on training set
@@ -79,14 +114,14 @@ def train_and_evaluate_on_training(X_train, y_train):
 
 # Hala: Evaluate on test data and refine/iterate
 
-from sklearn.metrics import r2_score, mean_squared_error
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
-from sklearn.pipeline import Pipeline
+test_x = input_test["x"]
+test_x_sq = input_test["x"]**2
+test_x_poly = pd.DataFrame({"x": test_x, "x_sq": test_x_sq})
+X_test_poly = sm.add_constant(test_x_poly)
 
 # Evaluate initial model on test data
 print("=== INITIAL MODEL EVALUATION (Linear Regression) ===")
-y_test_pred_linear = model.predict(X_test)
+y_test_pred_linear = model.predict(X_test_poly)
 test_r2_linear = r2_score(y_test, y_test_pred_linear)
 test_mse_linear = mean_squared_error(y_test, y_test_pred_linear)
 
@@ -104,11 +139,15 @@ poly_model = Pipeline([
     ('linear', LinearRegression())
 ])
 
+# Reshape X_train and X_test for sklearn (they need to be 2D)
+X_train_2d = X_train.reshape(-1, 1)
+X_test_2d = X_test.reshape(-1, 1)
+
 # Train polynomial model
-poly_model.fit(X_train, y_train)
+poly_model.fit(X_train_2d, y_train)
 
 # Evaluate polynomial model on test data
-y_test_pred_poly = poly_model.predict(X_test)
+y_test_pred_poly = poly_model.predict(X_test_2d)
 test_r2_poly = r2_score(y_test, y_test_pred_poly)
 test_mse_poly = mean_squared_error(y_test, y_test_pred_poly)
 
@@ -137,5 +176,4 @@ print("\n=== EXPLANATION ===")
 print("Based on the data generation formula (y = 2*x² - 5*x + 3 + noise),")
 print("we expect a quadratic relationship. The polynomial regression (degree 2)")
 print("should capture this relationship better than simple linear regression.")
-print("This is because it can model the curvature in the data that linear")
-print("regression cannot capture.")
+print("As expected, simple linear regression performs worse because it cannot capture the quadratic relationship.")
