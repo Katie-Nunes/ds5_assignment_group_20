@@ -1,9 +1,81 @@
 #I have used these variable names for part A:X_train, X_test, y_train, y_test
 # For part B:model (the trained LinearRegression model), X_train, y_train 
 
+# IMPORTS 
+import numpy as np
 
 
 
+# Train and evaluate on training set
+def build_design_matrix_with_intercept(x: np.ndarray) -> np.ndarray:
+    """
+    Make the design matrix X with a leading column of ones (intercept).
+    Input x can be shape (n,) or (n,1). Output X is (n,2): [1, x].
+    """
+    x = np.asarray(x).reshape(-1, 1)        # ensure column vector
+    ones = np.ones((x.shape[0], 1))
+    X = np.hstack([ones, x])                # [1, x]
+    return X
+
+def fit_ols_betas(X: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """
+    Compute OLS coefficients beta_hat = (X^T X)^(-1) X^T y.
+    Uses lstsq (more stable than forming an explicit inverse).
+    Returns array [b0, b1].
+    """
+    beta_hat, *_ = np.linalg.lstsq(X, y, rcond=None)
+    return beta_hat  # [b0, b1]
+
+def predict_linear(X: np.ndarray, beta: np.ndarray) -> np.ndarray:
+    """Compute y_hat = X @ beta."""
+    return X @ beta
+
+def r2_and_mse(y_true: np.ndarray, y_pred: np.ndarray) -> tuple[float, float]:
+    """
+    R^2 = 1 - SSE/SST,  MSE = SSE / n
+    """
+    residuals = y_true - y_pred
+    sse = np.sum(residuals**2)
+    sst = np.sum((y_true - np.mean(y_true))**2)
+    r2 = 1.0 - (sse / sst)
+    mse = sse / y_true.size
+    return r2, mse
+
+def train_and_evaluate_on_training(X_train, y_train):
+    """
+    Workflow:
+    1) Build design matrix with intercept
+    2) Fit OLS to get b0, b1
+    3) Predict on training
+    4) Report R^2 and MSE on training
+    Returns: dict with b0, b1, y_hat_train, r2_train, mse_train
+    """
+    # 1) design matrix
+    Xtr = build_design_matrix_with_intercept(X_train)
+
+    # 2) fit OLS (beta_hat = [b0, b1])
+    beta_hat = fit_ols_betas(Xtr, y_train)
+    b0, b1 = float(beta_hat[0]), float(beta_hat[1])
+
+    # 3) predict on training
+    y_hat_tr = predict_linear(Xtr, beta_hat)
+
+    # 4) training metrics
+    r2_tr, mse_tr = r2_and_mse(y_train, y_hat_tr)
+
+    # Print a short, readable summary (Possibly help for hala later)
+    print("TRAINED OLS (training set) ")
+    print(f"Model:  y_hat = b0 + b1·x  with  b0 = {b0:.4f},  b1 = {b1:.4f}")
+    print(f"Training R² = {r2_tr:.4f}")
+    print(f"Training MSE = {mse_tr:.4f}")
+
+    return {
+        "b0": b0,
+        "b1": b1,
+        "y_hat_train": y_hat_tr,
+        "r2_train": r2_tr,
+        "mse_train": mse_tr,
+    }
 
 # Hala: Evaluate on test data and refine/iterate
 
