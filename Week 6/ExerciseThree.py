@@ -191,6 +191,8 @@ print(f"Samples used: {len(iou_with_labels)}")
 print(f"Train R^2 (y vs. predicted probability): {r2_train:.4f}")
 print(f"Train Accuracy: {acc_train:.4f}")
 
+#hala
+
 #Based on the IoU results from the malaria detection model analysis,
 #  the model demonstrates variable performance in localizing infected regions. 
 # The Intersection over Union scores range from 0.05 to 0.40,
@@ -203,3 +205,9 @@ print(f"Train Accuracy: {acc_train:.4f}")
 #  The remaining 30% demonstrate good localization with IoUs above 0.3,
 #  with the best cases reaching nearly 0.4 IoU.
 
+
+#The model has several limitations for practical use.
+#  Its main weakness is poor boundary detection, it cannot accurately outline infected areas.
+#  Performance also varies significantly across different infection types and sizes.
+#  The model rarely achieves the minimum quality standard required for medical diagnosis.
+#  These issues show we need better training methods and improved detection algorithms.
